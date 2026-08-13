@@ -330,6 +330,15 @@ ul{list-style:none; padding:0}
 .float-slow{animation:floaty 11s ease-in-out infinite}
 .float-mid{animation:floaty2 8.5s ease-in-out infinite}
 
+/* iOSでは backdrop-filter と移動アニメーションを併用すると
+   描画が毎フレーム再計算されてチカチカするため、タッチ端末では浮遊を止める */
+@media (hover: none) {
+  .fv__panel.float-slow, .fv__panel.float-mid,
+  .bubble.float-slow,   .bubble.float-mid { animation: none }
+}
+/* 併せて描画を安定させる */
+.fv__panel, .bubble{ -webkit-backface-visibility:hidden; backface-visibility:hidden }
+
 /* ブランドモチーフ共通 */
 .paw{color:var(--accent); opacity:.55}
 .gecko-hand{color:var(--brand-deep)}
@@ -985,7 +994,8 @@ ul{list-style:none; padding:0}
 .promo__stage{position:relative; aspect-ratio:1/.8; display:grid; place-items:center}
 .gift{width:min(326px,80%); overflow:visible}
 .promo__coupon{
-  position:absolute; left:50%; top:4%; transform:translate(-50%,0);
+  /* transformで中央寄せするとGSAPの移動と二重になるため、左右0＋autoで中央に置く */
+  position:absolute; left:0; right:0; margin-inline:auto; top:4%;
   width:min(304px,78%); padding:1.5rem 1.6rem; border-radius:22px; text-align:center;
   opacity:0; z-index:5;
 }
@@ -2035,7 +2045,7 @@ section[id]{scroll-margin-top:92px}
   function showAll() {
     document.querySelectorAll('#geckoTrack svg, #pawtrail svg').forEach(function (el) { el.style.opacity = '.45'; });
     var cp = document.getElementById('coupon');
-    if (cp) { cp.style.opacity = '1'; cp.style.transform = 'translate(-50%,0)'; }
+    if (cp) { cp.style.opacity = '1'; cp.style.transform = 'none'; }
     var bow = document.getElementById('gBow'); if (bow) bow.style.display = 'none';
     var lid = document.getElementById('gLidG');
     if (lid) { lid.style.transform = 'translateY(-112px) rotate(-12deg)'; lid.style.opacity = '.25'; }
@@ -2417,7 +2427,7 @@ section[id]{scroll-margin-top:92px}
     if (!stage) return;
     if (!ANIM) {
       var cp = document.getElementById('coupon');
-      if (cp) { cp.style.opacity = '1'; cp.style.transform = 'translate(-50%,0)'; }
+      if (cp) { cp.style.opacity = '1'; cp.style.transform = 'none'; }
       var bow = document.getElementById('gBow'); if (bow) bow.style.opacity = '0';
       var lid = document.getElementById('gLidG');
       if (lid) { lid.style.transform = 'translateY(-112px) rotate(-12deg)'; lid.style.opacity = '.25'; }
@@ -2444,8 +2454,8 @@ section[id]{scroll-margin-top:92px}
      .to('#gLidG', { opacity: .18, duration: .6 }, 1.05)
     // 3) クーポンが飛び出す
      .fromTo('#coupon',
-        { opacity: 0, y: 74, scale: .68, xPercent: -50 },
-        { opacity: 1, y: 0, scale: 1, xPercent: -50, duration: 1.15, ease: 'power3.out' }, .88)
+        { opacity: 0, y: 74, scale: .68 },
+        { opacity: 1, y: 0, scale: 1, duration: 1.15, ease: 'power3.out' }, .88)
      .to('.spark', { opacity: .85, scale: 1, duration: .5, stagger: .07, ease: 'back.out(2)' }, 1.0)
      .to('.spark', { opacity: 0, duration: .9, stagger: .05 }, 2.0);
   })();
